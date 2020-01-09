@@ -1,25 +1,61 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Fragment, useEffect } from "react";
+import "./App.css";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import Navbar from "./components/layout/Navbar";
+import Body from "./components/layout/Body";
+import Footer from "./components/layout/Footer";
+import Dashboard from "./components/dashboard/Dashboard";
+import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
+import Alert from "./components/layout/Alert";
+import SetAuthToken from "./utils/SetAuthToken";
+import PrivateRoute from "./components/routing/PrivateRoute";
+import Createprofile from "./components/profileform/Createprofile";
+import Editprofile from "./components/profileform/Editprofile";
+import Profiles from "./components/profiles/Profiles";
+import { loadUser } from "./actions/auth";
+// Redux
+import { Provider } from "react-redux";
+import store from "./store";
+store.subscribe(() => console.log("store in index ", store.getState()));
+
+if (localStorage.token) {
+  SetAuthToken(localStorage.token);
+}
 
 function App() {
+  useEffect(() => {
+    store.dispatch(loadUser());
+  }, []);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      <Router>
+        <Fragment>
+          <Navbar />
+          <Route exact path="/" component={Body} />
+          <Route exact path="/" component={Footer} />
+          <section className="container">
+            <Alert />
+            <Switch>
+              <Route exact path="/register" component={Register} />{" "}
+              <Route exact path="/login" component={Login} />
+              <Route exact path="/profiles" component={Profiles} />
+              <PrivateRoute exact path="/dashboard" component={Dashboard} />
+              <PrivateRoute
+                exact
+                path="/create-profile"
+                component={Createprofile}
+              />
+              <PrivateRoute
+                exact
+                path="/edit-profile"
+                component={Editprofile}
+              />
+            </Switch>{" "}
+          </section>{" "}
+        </Fragment>{" "}
+      </Router>
+    </Provider>
   );
 }
 
